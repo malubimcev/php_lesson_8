@@ -2,16 +2,21 @@
     require_once 'functions.php';
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $userName = $_POST['userName'];
-        $password = $_POST['password'];
-        if (login($userName, $password)) {
-            header('Location: admin.php');
+        $userName = trim((string)$_POST['userName']);
+        $password = trim((string)$_POST['password']);
+        if ((!empty($userName)) && login($userName, $password)) {
+            if (isAdmin()) {
+                redirect('admin.php');
+            }
         } else {
             if (isAuthorized()) {
-                saveUserName($userName);
-                header('Location: list.php');
+                redirect('list.php');
             } else {
-                $errors[] = 'Invalid user data';
+                $errors[] = 'Пользователь не авторизован';
+                header('HTTP/1.0 401 Unauthorized');
+                printErrors();
+                $errors[] = 'Пользователь не авторизован';
+                exit;
             }
         }
     }

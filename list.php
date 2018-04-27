@@ -2,7 +2,7 @@
 //list.php
     require_once 'functions.php';
 
-    $fileList = scandir('files/');//перечень файлов
+    $fileList = scandir(__DIR__ . '/files/');//перечень файлов
     $testList = [];//список тестов
     foreach ($fileList as $key => $value) {
         if ($key > 1) {
@@ -28,7 +28,7 @@
         </ol>
         <div class="result">
             <?php
-                if ($_SESSION['user'] == 'admin') {
+                if ($_SESSION['user']['userName'] === 'admin') {
                     echo '<a href="admin.php">Добавить тест</a>';
                 }
             ?>
@@ -39,6 +39,7 @@
             <input type="text" name="test_number">
             <input type="submit" value="Загрузить тест" class="button select-button">
           </form>
+          <a href="logout.php">Выход</a>
         </div>
      </section>
   </body>

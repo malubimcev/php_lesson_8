@@ -1,9 +1,16 @@
 <?php
+    require_once __DIR__ . '/functions.php';
+
+    if ((!isAuthorized()) || (!isAdmin())) {
+        http_response_code(403);
+        echo '<div class="form-container"><h1>Доступ запрещен!</h1></div>';
+        die;
+    }
     $maxFileSize = 100*1024; //ограничение размера файла
     $validFileType = ["json"];//разрешенные форматы файлов
     $errorArray = [];//массив для записи ошибок
-    $path = 'files/'; //путь для нового файла
-    $fileName='';
+    $path = __DIR__ . '/files/'; //путь для нового файла
+    $fileName = '';
     // если есть отправленные файлы
     $result = '';//для вывода результата на страницу
     if ($_FILES) {
@@ -25,15 +32,19 @@
             // проверяем загружен ли файл
             if (is_uploaded_file($tmpName)) {
                 // сохраняем файл
-                move_uploaded_file($tmpName, $path.$fileName);
-                $result = "файл $fileName сохранен";
-                header('Location: list.php');//редирект на список тестов
+                if (move_uploaded_file($tmpName, $path.$fileName)) {
+                    writeLog('файл ' . $path . $fileName . ' сохранен');
+                    redirect('list.php');//редирект на список тестов
+                } else {
+                    // Если файл не переместился
+                    $errorArray[] = 'Ошибка сохранения';
+                }
             } else {
                 // Если файл не загрузился
-                $errorArray[] = 'Ошибка загрузки!';
+                $errorArray[] = 'Ошибка загрузки';
             }
         } else {
-            $result = 'Ошибки:<br>'.implode(';', $errorArray);
+            $result = 'Ошибки:<br>' . implode(';', $errorArray);
         }
     } else {
         $result = 'файл не выбран';
@@ -54,6 +65,7 @@
               <input type="file" name="user_file"><br>
               <input type="submit" value="Загрузить" class="button select-button"><br>
             </form><br>
+            <a href="logout.php">Выход</a>
         </div>
         <div class="result">
             <?php echo $result; ?>

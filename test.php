@@ -1,7 +1,4 @@
 <?php
-//test.php
-//Принимает в качестве GET-параметра номер теста и отображает форму теста.
-//Если форма отправлена, проверяет и показывает результат.
    require_once 'functions.php';
 
    $testResults = '';//переменная для вывода результатов теста
@@ -9,14 +6,14 @@
    $data = [];//массив для декодированного json-файла
    $fields = [];//
    $lastTest = count(scandir('files/')) - 2;//максимальный номер теста
-   $user = readUserName();
+   $user = readUserName('guest');
    if ((empty($_GET['test_number'])) || ($_GET['test_number'] > $lastTest)) {
        http_response_code(404);
        echo '<div class="form-container"><h1>Cтраница не найдена!</h1></div>';
        exit(1);
    }
    if (isset($_GET['test_number'])) {
-       $fileName = "test_".htmlspecialchars($_GET['test_number']).".json";
+       $fileName = "test_" . htmlspecialchars($_GET['test_number']) . ".json";
        $data = get_json_data($fileName);
    }
    if (isset($_POST['userName'])) {
@@ -51,29 +48,29 @@
    <section class="main-container">
        <h1>Тест: <?php echo $data['testName']; //вывод названия теста ?></h1>
        <div class="form-container">
-       <form action="<?php $_SERVER['PHP_SELF'];?>" method="post" class="test-form">
-           <?php $q = 0;//инициализация счетчика вопросов для создания уникальных имен групп radio-переключателей
-           foreach ($data['questions'] as $question): ?>
-               <fieldset class="question">
-                   <legend class="question-legend"><?php echo $question['question']; $q++; ?></legend>
-                   <?php foreach ($question['answers'] as $answer_key => $answer): ?>
-                       <label class="test-answer"><?php echo $answer['answer']; ?>
-                           <input type="radio" name="<?php echo "q$q"; ?>" value="<?php echo $answer['isRight']; ?>" /><br>
-                       </label>
-                   <?php endforeach; ?>
-               </fieldset>
-           <?php endforeach; ?>
-           <input type="text" class="input-user-name" name="userName" value="<?php echo $user; ?>" hidden>
-           <input type="submit" value="Результаты теста" class="button result-button" />
-       </form>
+           <form action="<?php $_SERVER['PHP_SELF'];?>" method="post" class="test-form">
+               <?php $q = 0;//инициализация счетчика вопросов для создания уникальных имен групп radio-переключателей
+               foreach ($data['questions'] as $question): ?>
+                   <fieldset class="question">
+                       <legend class="question-legend"><?php echo $question['question']; $q++; ?></legend>
+                       <?php foreach ($question['answers'] as $answer_key => $answer): ?>
+                           <label class="test-answer"><?php echo $answer['answer']; ?>
+                               <input type="radio" name="<?php echo "q$q"; ?>" value="<?php echo $answer['isRight']; ?>" /><br>
+                           </label>
+                       <?php endforeach; ?>
+                   </fieldset>
+               <?php endforeach; ?>
+               <input type="text" class="input-user-name" name="userName" value="<?php echo $user; ?>" hidden>
+               <input type="submit" value="Результаты теста" class="button result-button" />
+           </form>
+           <a href="logout.php">Выход</a>
        </div>
        <div class="form-container">
            <?php
                if ($testResults) {
                    echo $testResults;
                    if ($testRating > 80) {
-                       echo '<img src="sertificate.php?userName='.$userName.'" alt="picture">';
-                       delUserName($userName);
+                       echo '<img src="sertificate.php?userName=' . $userName . '" alt="picture">';
                    }
                }
            ?>
